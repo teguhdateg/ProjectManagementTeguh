@@ -20,10 +20,12 @@ import {
 // import { useLogin } from "./services/hooks/login/login";
 import Cookies from "js-cookie";
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Terminal } from "lucide-react";
 import { BackgroundGradient } from "@/components/ui/background-gradient";
 import { useLogin } from "@/services/hooks/auth";
 import { useUserStore } from "./providers/userStoreProvider";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InputMotions } from "@/components/inputMotions";
 // import { useUserStore } from "./providers/userStoreProvider";
 
 const formSchema = z.object({
@@ -47,7 +49,6 @@ export default function Home() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const { name, setName } = useUserStore((state) => state);
-  console.log(name);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,16 +57,14 @@ export default function Home() {
     },
   });
 
-  const { mutate } = useLogin({
+  const { mutate, error } = useLogin({
     onSuccess: async (res) => {
-      console.log(res, "res");
       const datas = res;
       const token = datas.accessToken;
       if (token) {
         setName(datas.user.name);
-        Cookies.set("token", token);
-        // console.log(token)
         localStorage.setItem("token", token);
+        Cookies.set("token", token);
         router.push("/projects");
       } else {
         console.error("Invalid response data");
@@ -90,6 +89,15 @@ export default function Home() {
     <div className="h-screen flex items-center justify-center">
       <BackgroundGradient className="rounded-[22px] max-w-sm p-4 sm:p-10 bg-white dark:bg-zinc-900">
       {/* <div className="bg-white shadow-md border border-gray-200 rounded-lg max-w-sm p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700 w-full"> */}
+       {!!error && (
+        <Alert variant="default">
+            <Terminal />
+            <AlertTitle>Oopss!</AlertTitle>
+            <AlertDescription>
+               Something Wrong Bro!
+              </AlertDescription>
+        </Alert>
+      )}
         <Form {...form}>
           <form 
           onSubmit={form.handleSubmit(onSubmit)} 
@@ -104,7 +112,7 @@ export default function Home() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukan Email" {...field} />
+                    <InputMotions placeholder="Masukan Email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -118,7 +126,7 @@ export default function Home() {
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Input
+                      <InputMotions
                         placeholder="Masukan Password"
                         {...field}
                         type={showPassword ? "text" : "password"}

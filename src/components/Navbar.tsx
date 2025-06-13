@@ -22,9 +22,8 @@ export default function Navbar() {
   const { setTheme } = useTheme();
 
 //   const { name } = useUserStore((state) => state);
-//   console.log(name);
   return (
-    <nav className="p-4 flex items-center justify-between bg-sidebar">
+    <nav className="sticky top-0 z-50 p-4 flex items-center justify-between bg-sidebar shadow-md w-full">
       <SidebarTrigger />
       <div className="flex items-center gap-4">
         {/* <Link href="/">{name}</Link> */}

@@ -1,7 +1,8 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarFooter, SidebarProvider } from "@/components/ui/sidebar";
 import { cookies } from "next/headers";
 import Navbar from "@/components/Navbar";
 import AppSidebar from "@/components/AppSidebar";
+import FooterBar from "@/components/FooterBar";
 
 export default async function Layout({
   children,
@@ -9,15 +10,17 @@ export default async function Layout({
   children: React.ReactNode;
 }>) {
    const cookieStore = await cookies()
-  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
+   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
   return (
     
           <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
-            <main className="w-full">
+            <main className="flex flex-col w-full min-h-screen overflow-x-hidden">
               <Navbar/>
-              <div className="px-4">
-              {children}</div>
+              <div className="p-9">
+              {children}
+              </div>
+              <FooterBar/>
             </main>
           </SidebarProvider>
   );

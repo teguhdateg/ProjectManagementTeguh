@@ -39,26 +39,16 @@ const items = [
     url: "/projects",
     icon: FileBadge2,
   },
-  // {
-  //   title: "Review Supplier",
-  //   url: "/",
-  //   icon: FileArchive,
-  // },
-  // {
-  //   title: "Pengajuan Baru",
-  //   url: "/",
-  //   icon: FileCheck2,
-  // },
-  // {
-  //   title: "Riwayat Prosess",
-  //   url: "/",
-  //   icon: ShieldEllipsis,
-  // },
-  // {
-  //   title: "Settings",
-  //   url: "/setting",
-  //   icon: Settings,
-  // },
+  {
+    title: "Task",
+    url: "/task",
+    icon: FileArchive,
+  },
+  {
+    title: "User",
+    url: "/user",
+    icon: User2,
+  },
 ];
 export default function AppSidebar() {
   const { theme } = useTheme();
@@ -69,11 +59,11 @@ export default function AppSidebar() {
     setMounted(true);
   }, []);
 
-  const logoSrc = !mounted
-    ? "https://credit-admin-dev.pinjammodal.id/static/media/logo.2c80faded8ad9c4133da2a1cde993ec3.svg" // fallback logo saat SSR
-    : theme === "light"
-      ? "https://credit-admin-dev.pinjammodal.id/static/media/logo.2c80faded8ad9c4133da2a1cde993ec3.svg"
-      : "https://b2b-partnership-dev.pinjammodal.id/static/media/logo-white.08c9b1aa80f2d149208efe4dc8f545a3.svg";
+  // const logoSrc = !mounted
+  //   ? "https://credit-admin-dev.pinjammodal.id/static/media/logo.2c80faded8ad9c4133da2a1cde993ec3.svg" // fallback logo saat SSR
+  //   : theme === "light"
+  //     ? "https://credit-admin-dev.pinjammodal.id/static/media/logo.2c80faded8ad9c4133da2a1cde993ec3.svg"
+  //     : "https://b2b-partnership-dev.pinjammodal.id/static/media/logo-white.08c9b1aa80f2d149208efe4dc8f545a3.svg";
 
   return (
     <Sidebar collapsible="icon">
@@ -81,14 +71,15 @@ export default function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size={"lg"}>
-               <img src={logoSrc} alt="logo" className="h-12" />
+               {/* <img src={logoSrc} alt="logo" className="h-12" /> */}
+               <h2 className="w-full item-center justify-center text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-cyan-600 to-blue-900 bg-">My Projects</h2>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
+          <SidebarGroupLabel className="font-bold">Menu Utama</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

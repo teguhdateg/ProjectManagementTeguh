@@ -10,9 +10,7 @@ export const axiosInterceptor = axios.create({
 axiosInterceptor.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-    console.log(token);
     if (token) {
-      console.log(token,"token")
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -28,7 +26,10 @@ axiosInterceptor.interceptors.response.use(
   },
   (error) => {
     if (error.response.status === 401) {
-      console.log(localStorage.getItem("token"));
+      localStorage.removeItem("token");
+      // window.location.href = "/login";
+    }
+    if (error.response.status === 400) {
       localStorage.removeItem("token");
       // window.location.href = "/login";
     }
