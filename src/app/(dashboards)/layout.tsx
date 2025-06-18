@@ -15,9 +15,9 @@ export default async function Layout({
     
           <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
-            <main className="flex flex-col w-full min-h-screen overflow-x-hidden">
               <Navbar/>
-              <div className="p-9">
+            <main className="flex flex-col w-screen min-h-screen">
+              <div className="p-9 pt-16">
               {children}
               </div>
               <FooterBar/>

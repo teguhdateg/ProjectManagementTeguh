@@ -1,5 +1,6 @@
 import { useGetApiWithParams, useMutateApi } from "./hooks";
 import ProjectsApi from "../api/projectApi";
+import { id } from "date-fns/locale";
 
 // Type untuk satu project (bisa digunakan untuk iterasi list)
 export type Project = ProjectsResponse['data'][number];
@@ -67,6 +68,17 @@ interface ProjectPayload {
   teamEmails: string[];
 }
 
+interface ProjectPutPayload extends ProjectPayload {
+  id: string;
+}
+
+interface ProjectDeletePayload{
+  id: string;
+}
+interface ProjectDeleteResponse{
+  message: string;
+}
+
 // Options untuk GET
 type UseProjectsOptions = {
   params: ProjectsParams;
@@ -113,3 +125,30 @@ export const useProjectPost = ({
     onSuccess,
     onError,
   });
+export const useProjectPut = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: ProjectsResponse, payload: ProjectPutPayload) => void;
+  onError?: (error: unknown, payload: ProjectPutPayload) => void;
+} = {}) =>
+  useMutateApi<ProjectPutPayload, ProjectsResponse>({
+    fetch: ({ id, ...body }) => ProjectsApi.projectsPut(id, body),
+    key: ["ProjectsApi.projectsPut"],
+    onSuccess,
+    onError,
+  });
+export const useProjectDelete = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: ProjectDeleteResponse, payload: ProjectDeletePayload) => void;
+  onError?: (error: unknown, payload: ProjectDeletePayload) => void;
+} = {}) =>
+  useMutateApi<ProjectDeletePayload, ProjectDeleteResponse>({
+    fetch: ({ id }) => ProjectsApi.projectsDelete(id),
+    key: ["ProjectsApi.projectsDelete"],
+    onSuccess,
+    onError,
+  });
+  

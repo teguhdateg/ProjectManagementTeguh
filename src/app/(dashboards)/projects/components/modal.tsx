@@ -22,14 +22,15 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useUploadFile } from "@/services/hooks/uploadFile";
-import { useProjectPost } from "@/services/hooks/projects";
+import { useProjectDelete, useProjectPost, useProjectPut, useProjectsGetById } from "@/services/hooks/projects";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Project name is required" }),
@@ -39,6 +40,7 @@ const formSchema = z.object({
   teamEmails: z
     .array(z.string().email({ message: "Invalid email format" }))
     .min(1, { message: "At least one email is required" }),
+  status: z.string().min(1, { message: "Status is required" }),
   file: z
     .custom<FileList>((value) => {
       if (typeof window === "undefined") return true; // SSR: skip
@@ -59,7 +61,30 @@ type UploadedFile = {
     };
 };
 
-export default function Modal({ type }: { type: string }) {
+export interface ProjectResponse {
+  data: {
+    createdAt: string;
+    createdBy: { id: string; name: string; email: string };
+    createdById: string;
+    description: string;
+    documents: { url: string; name: string }[];
+    endDate: string;
+    id: string;
+    isOverdue: boolean;
+    name: string;
+    overdueDays: number;
+    startDate: string;
+    status: string;
+    teams: { id: string; name: string; email: string }[];
+    updatedAt: string;
+    userId: string;
+  };
+}
+interface ModalProps {
+  type: "add" | "edit";
+  id?: string;
+}
+export default function Modal({ type, id }: ModalProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -68,12 +93,36 @@ export default function Modal({ type }: { type: string }) {
       startDate: new Date(),
       endDate: new Date(),
       teamEmails: [],
+      status: "",
       file: undefined as unknown as FileList,
     },
   });
 
   const [loading, setLoading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+  console.log(type)
+  const { data: projectDetail } = useProjectsGetById({ id: id ?? "" }) as { data: ProjectResponse };
+
+  useEffect(() => {
+    if (type === "edit" && projectDetail) {
+      console.log(projectDetail.data)
+      form.setValue("name", projectDetail.data.name);
+      form.setValue("description", projectDetail.data.description);
+      form.setValue("startDate", new Date(projectDetail.data.startDate));
+      form.setValue("endDate", new Date(projectDetail.data.endDate));
+      form.setValue("status", projectDetail.data.status);
+      form.setValue("teamEmails", projectDetail.data.teams.map((team) => team.email));
+
+      setUploadedFile({
+        message: "Already uploaded",
+        data: {
+          url: projectDetail.data.documents?.[0]?.url ?? "",
+          public_id: "",
+          resource_type: "",
+        },
+      });
+    }
+  }, [type, projectDetail, form]);
 
   const { mutateAsync } = useUploadFile({
     onSuccess: (res) => {
@@ -86,7 +135,16 @@ export default function Modal({ type }: { type: string }) {
     },
   });
 
-  const{mutate, isError} = useProjectPost({
+  const{mutate: addProject, isError: isAddError} = useProjectPost({
+    onSuccess: (res) => {
+      console.log(res);
+    },
+    onError: (err) => {
+      console.error("Upload failed:", err);
+    },
+  })
+
+  const{mutate: editProject, isError} = useProjectPut({
     onSuccess: (res) => {
       console.log(res);
     },
@@ -111,7 +169,7 @@ export default function Modal({ type }: { type: string }) {
       description: values.description,
       startDate: values.startDate.toISOString(),
       endDate: values.endDate.toISOString(),
-      status: 'active',
+      status: values.status,
       teamEmails: values.teamEmails,
       documents: [
         {
@@ -121,7 +179,7 @@ export default function Modal({ type }: { type: string }) {
       ],
     };
 
-      await mutate(payload);
+      await type === "add" ? addProject(payload) : editProject({...payload, id: projectDetail.data.id ?? "",});
       console.log("✅ Final Payload:", payload);
     } catch (err) {
       console.error("❌ Upload gagal saat submit:", err);
@@ -129,13 +187,11 @@ export default function Modal({ type }: { type: string }) {
 
     setLoading(false);
   }
-
   return (
     <>
-      {type === "add" && (
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add New Project</DialogTitle>
+            <DialogTitle>{type==="add" ? "Add New Project" : "Edit Project"}</DialogTitle>
             <DialogDescription>
               Create your new project. Click save when you’re done.
             </DialogDescription>
@@ -261,6 +317,7 @@ export default function Modal({ type }: { type: string }) {
                     <FormControl>
                       <Input
                         placeholder="user@example.com, user2@example.com"
+                        value={form.watch("teamEmails").join(", ")} // ✅ tampilkan nilai
                         onChange={(e) => {
                           const emails = e.target.value
                             .split(",")
@@ -269,6 +326,31 @@ export default function Modal({ type }: { type: string }) {
                         }}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Status */}
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col mb-2">
+                    <FormLabel>Status</FormLabel>
+                    <Select 
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="active">active</SelectItem>
+                        <SelectItem value="on_hold">on_hold</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -287,10 +369,7 @@ export default function Modal({ type }: { type: string }) {
                         onChange={async (e) => {
                         const files = e.target.files as FileList;
                         if (!files || files.length === 0) return;
-
-                        form.setValue("file", files); // simpan ke react-hook-form
-
-                        // 👇 langsung upload
+                        form.setValue("file", files); 
                         try {
                             setLoading(true);
                             const result = await mutateAsync({
@@ -326,7 +405,6 @@ export default function Modal({ type }: { type: string }) {
             </form>
           </Form>
         </DialogContent>
-      )}
     </>
   );
 }

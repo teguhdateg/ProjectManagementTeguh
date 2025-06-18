@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import {
   Project,
   ProjectResponse,
+  useProjectDelete,
   useProjectsGet,
 } from "@/services/hooks/projects";
 import {
@@ -18,15 +19,20 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import Modal from "./components/modal";
 import { useDebounce } from "@/lib/useDebounce";
+import { de } from "date-fns/locale";
 
 const defaultPage = 1;
 const limit = 5;
 
-const ResponsiveList: React.FC = () => {
+export default function ResponsiveList() {
   const router = useRouter();
-  const [page, setPage] = React.useState(defaultPage);
+  const [page, setPage] = React.useState(defaultPage)
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce(search, 500);
+
+  const [open, setOpen] = React.useState(false)
+  const [isEditOpen, setIsEditOpen] = React.useState(false)
+  const [editProjectId, setEditProjectId] = React.useState("")
 
   const { data, isFetching, refetch } = useProjectsGet({
     params: {
@@ -38,6 +44,26 @@ const ResponsiveList: React.FC = () => {
 
   const projectsList: Project[] = (data as ProjectResponse)?.data ?? [];
   const meta = (data as ProjectResponse)?.meta?.pagination;
+
+  const handleEdit = (id: string) => {
+  setIsEditOpen(true);
+  setEditProjectId(id);
+};
+
+  const { mutate: deleteProject } = useProjectDelete({
+    onSuccess: (res) => {
+      console.log(res);
+    },
+    onError: (err) => {
+      console.error("Upload failed:", err);
+    },
+  })
+const handleDelete = async (id: string) => {
+  const confirmed = confirm("Are you sure you want to delete this project?");
+  if (!confirmed) return;
+  await deleteProject({ id });
+  console.log("Deleting project with ID:", id);
+};
 
   const columns = [
     { title: "Id", dataIndex: "id" },
@@ -67,17 +93,29 @@ const ResponsiveList: React.FC = () => {
       title: "Actions",
       render: (item: Project) => (
         <div className="flex gap-2">
-          <Dialog>
+          {/* <Dialog open={isEditOpen} onOpenChange={(open) => {
+            setIsEditOpen(open);
+            if (open) {
+              setEditProjectId(item.id); // langsung set ID saat dialog dibuka
+            }
+          }}>
             <form>
-              <DialogTrigger asChild>
-                <Button className="text-sm text-blue-600" variant="link">
+              <DialogTrigger asChild> */}
+                <Button 
+                className="text-sm text-blue-600" 
+                variant="link" 
+                onClick={() => handleEdit(item.id)}
+                >
                   <Pencil /> Edit
                 </Button>
-              </DialogTrigger>
-              <Modal type="edit" />
+              {/* </DialogTrigger>
+              <Modal type="edit" id={editProjectId} />
             </form>
-          </Dialog>
-          <Button className="text-sm text-red-500" variant="link">
+          </Dialog> */}
+          <Button 
+            className="text-sm text-red-500" 
+            variant="link" 
+            onClick={() => handleDelete(item.id)}>
             <Trash /> Delete
           </Button>
         </div>
@@ -104,28 +142,28 @@ const ResponsiveList: React.FC = () => {
               />
               Refresh
             </Button>
-            <Dialog>
+            {/* <Dialog open={open} onOpenChange={setOpen}>
               <form>
-                <DialogTrigger asChild>
-                  <Button className="w-40 hover:bg-cyan-400 bg-cyan-500 text-white">
+                <DialogTrigger asChild> */}
+                  <Button className="w-40 bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 hover:bg-blue-400" onClick={() => setOpen(true)}>
                     <CirclePlus />
                     Add New Project
                   </Button>
-                </DialogTrigger>
+                {/* </DialogTrigger>
                 <Modal type="add" />
               </form>
-            </Dialog>
+            </Dialog> */}
           </div>
         </div>
 
-        {isFetching && (
-          <div className="text-center text-sm text-gray-500 italic mb-2">
-            Fetching data...
+        {isFetching ? (
+          <div className="text-center flex justify-center items-center text-sm text-blue-500 italic mb-2">
+            <RefreshCcw
+                className={isFetching ? "animate-spin" : ""}
+                size={18}
+              /> Loading ...
           </div>
-        )}
-
-        {/* Table Desktop */}
-        <div className="hidden md:block overflow-hidden">
+        ):(<div className="hidden md:block overflow-hidden">
           <table className="m-4 w-full text-left table-auto min-w-full">
             <thead>
               <tr>
@@ -141,7 +179,7 @@ const ResponsiveList: React.FC = () => {
                 <tr
                   key={index}
                   className="hover:bg-secondary border-b"
-                  onClick={() => router.push(`/projects/${item.id}`)}
+                  // onClick={() => router.push(`/projects/${item.id}`)}
                 >
                   {columns.map((col, colIndex) => (
                     <td className="p-4 py-5" key={colIndex}>
@@ -186,7 +224,7 @@ const ResponsiveList: React.FC = () => {
           </table>
 
           {/* Pagination */}
-          <div className="flex justify-between items-center px-4 py-3 bg-card text-card-foreground rounded-lg">
+          <div className="flex justify-between items-center px-4 py-3">
             <div className="p-2 text-sm">
               Showing <span className="font-medium text-primary">{limit}</span> of{" "}
               <span className="font-medium">{meta?.totalItems ?? 0}</span> data
@@ -212,7 +250,7 @@ const ResponsiveList: React.FC = () => {
                       className={`
                         px-3 py-1 text-sm
                         ${isActive
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                          ? "bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500"
                           : "bg-muted text-muted-foreground hover:bg-muted/80"}
                       `}
                     >
@@ -231,7 +269,23 @@ const ResponsiveList: React.FC = () => {
               </Button>
             </div>
           </div>
+           {open && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <form>
+                <Modal type="add" />
+              </form>
+            </Dialog>
+          )}
+
+          {isEditOpen && (
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+              <form>
+                <Modal type="edit" id={editProjectId} />
+              </form>
+            </Dialog>
+          )}
         </div>
+      )}
 
         {/* Mobile Cards */}
         <div className="block md:hidden space-y-4 px-4 py-2">
@@ -270,6 +324,4 @@ const ResponsiveList: React.FC = () => {
       </Card>
     </div>
   );
-};
-
-export default ResponsiveList;
+}

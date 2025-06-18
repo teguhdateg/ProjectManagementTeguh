@@ -23,10 +23,12 @@ export default function Navbar() {
 
 //   const { name } = useUserStore((state) => state);
   return (
-    <nav className="sticky top-0 z-50 p-4 flex items-center justify-between bg-sidebar shadow-md w-full">
-      <SidebarTrigger />
-      <div className="flex items-center gap-4">
-        {/* <Link href="/">{name}</Link> */}
+    <nav className="fixed top-0 z-50 p-4 flex flex-auto items-center justify-between bg-sidebar shadow-md w-full">
+        <div>
+          <h2 className="w-full item-center justify-center text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500">My Projects</h2>
+        </div>
+        {/* <SidebarTrigger /> */}
+        <div className="flex items-center gap-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
@@ -75,7 +77,7 @@ export default function Navbar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+        </div>
     </nav>
   );
 }
