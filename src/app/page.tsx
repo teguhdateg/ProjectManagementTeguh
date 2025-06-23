@@ -14,9 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
-import {
-  IconBrandGoogle
-} from "@tabler/icons-react";
+import { IconBrandGoogle } from "@tabler/icons-react";
 // import { useLogin } from "./services/hooks/login/login";
 import Cookies from "js-cookie";
 import { useState } from "react";
@@ -29,20 +27,18 @@ import { InputMotions } from "@/components/inputMotions";
 // import { useUserStore } from "./providers/userStoreProvider";
 
 const formSchema = z.object({
-  email: z
-    .string()
-    .min(5, { message: "Username Harus Diisi." }),
+  email: z.string().min(5, { message: "Username Harus Diisi." }),
   password: z.string().min(5, { message: "Password Harus Diisi." }),
 });
 interface data {
-  message: string,
+  message: string;
   user: {
-    id: string,
-    name: string,
-    email: string
-  },
-  accessToken: string
-  refreshToken: string
+    id: string;
+    name: string;
+    email: string;
+  };
+  accessToken: string;
+  refreshToken: string;
 }
 
 export default function Home() {
@@ -88,20 +84,16 @@ export default function Home() {
   return (
     <div className="h-screen flex items-center justify-center">
       <BackgroundGradient className="rounded-[22px] max-w-sm p-4 sm:p-10 bg-white dark:bg-zinc-900">
-      {/* <div className="bg-white shadow-md border border-gray-200 rounded-lg max-w-sm p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700 w-full"> */}
-       {!!error && (
-        <Alert variant="default">
+        {/* <div className="bg-white shadow-md border border-gray-200 rounded-lg max-w-sm p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:border-gray-700 w-full"> */}
+        {!!error && (
+          <Alert variant="default">
             <Terminal />
             <AlertTitle>Oopss!</AlertTitle>
-            <AlertDescription>
-               Something Wrong Bro!
-              </AlertDescription>
-        </Alert>
-      )}
+            <AlertDescription>Something Wrong Bro!</AlertDescription>
+          </Alert>
+        )}
         <Form {...form}>
-          <form 
-          onSubmit={form.handleSubmit(onSubmit)} 
-          className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <h3 className="w-full item-center justify-center text-2xl font-medium bg-clip-text text-transparent bg-gradient-to-r from-cyan-200 via-cyan-500 to-blue-500 bg-">
               Dashboard Boilerplate Next
             </h3>
@@ -161,14 +153,15 @@ export default function Home() {
               className="w-full justify-content-center items-center font-bold"
             >
               {/* {isLoading ? "Logging in..." : "Login to your account"} */}
-
-            <IconBrandGoogle className="h-4 w-4 bg-primary" />
+              <IconBrandGoogle className="h-4 w-4 bg-primary" />
               Login With Google Account
             </Button>
           </form>
         </Form>
-      {/* </div> */}
-      <div className="w-full mt-4 mb-0 text-sm text-center justify-content-center items-center font-bold">Created By - Teguh Kurniawan</div>
+        {/* </div> */}
+        <div className="w-full mt-4 mb-0 text-sm text-center justify-content-center items-center font-bold">
+          Created By - Teguh Kurniawan
+        </div>
       </BackgroundGradient>
     </div>
   );

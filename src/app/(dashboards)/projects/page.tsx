@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,30 +9,24 @@ import {
   useProjectDelete,
   useProjectsGet,
 } from "@/services/hooks/projects";
-import {
-  CirclePlus,
-  Pencil,
-  Trash,
-  RefreshCcw,
-} from "lucide-react";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { useRouter } from "next/navigation";
+import { CirclePlus, Pencil, Trash, RefreshCcw } from "lucide-react";
+import { Dialog } from "@/components/ui/dialog";
+// import { useRouter } from "next/navigation";
 import Modal from "./components/modal";
 import { useDebounce } from "@/lib/useDebounce";
-import { de } from "date-fns/locale";
 
 const defaultPage = 1;
 const limit = 5;
 
 export default function ResponsiveList() {
-  const router = useRouter();
-  const [page, setPage] = React.useState(defaultPage)
+  // const router = useRouter();
+  const [page, setPage] = React.useState(defaultPage);
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce(search, 500);
 
-  const [open, setOpen] = React.useState(false)
-  const [isEditOpen, setIsEditOpen] = React.useState(false)
-  const [editProjectId, setEditProjectId] = React.useState("")
+  const [open, setOpen] = React.useState(false);
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [editProjectId, setEditProjectId] = React.useState("");
 
   const { data, isFetching, refetch } = useProjectsGet({
     params: {
@@ -46,9 +40,9 @@ export default function ResponsiveList() {
   const meta = (data as ProjectResponse)?.meta?.pagination;
 
   const handleEdit = (id: string) => {
-  setIsEditOpen(true);
-  setEditProjectId(id);
-};
+    setIsEditOpen(true);
+    setEditProjectId(id);
+  };
 
   const { mutate: deleteProject } = useProjectDelete({
     onSuccess: (res) => {
@@ -57,13 +51,13 @@ export default function ResponsiveList() {
     onError: (err) => {
       console.error("Upload failed:", err);
     },
-  })
-const handleDelete = async (id: string) => {
-  const confirmed = confirm("Are you sure you want to delete this project?");
-  if (!confirmed) return;
-  await deleteProject({ id });
-  console.log("Deleting project with ID:", id);
-};
+  });
+  const handleDelete = async (id: string) => {
+    const confirmed = confirm("Are you sure you want to delete this project?");
+    if (!confirmed) return;
+    await deleteProject({ id });
+    console.log("Deleting project with ID:", id);
+  };
 
   const columns = [
     { title: "Id", dataIndex: "id" },
@@ -101,21 +95,22 @@ const handleDelete = async (id: string) => {
           }}>
             <form>
               <DialogTrigger asChild> */}
-                <Button 
-                className="text-sm text-blue-600" 
-                variant="link" 
-                onClick={() => handleEdit(item.id)}
-                >
-                  <Pencil /> Edit
-                </Button>
-              {/* </DialogTrigger>
+          <Button
+            className="text-sm text-blue-600"
+            variant="link"
+            onClick={() => handleEdit(item.id)}
+          >
+            <Pencil /> Edit
+          </Button>
+          {/* </DialogTrigger>
               <Modal type="edit" id={editProjectId} />
             </form>
           </Dialog> */}
-          <Button 
-            className="text-sm text-red-500" 
-            variant="link" 
-            onClick={() => handleDelete(item.id)}>
+          <Button
+            className="text-sm text-red-500"
+            variant="link"
+            onClick={() => handleDelete(item.id)}
+          >
             <Trash /> Delete
           </Button>
         </div>
@@ -145,11 +140,14 @@ const handleDelete = async (id: string) => {
             {/* <Dialog open={open} onOpenChange={setOpen}>
               <form>
                 <DialogTrigger asChild> */}
-                  <Button className="w-40 bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 hover:bg-blue-400" onClick={() => setOpen(true)}>
-                    <CirclePlus />
-                    Add New Project
-                  </Button>
-                {/* </DialogTrigger>
+            <Button
+              className="w-40 bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 hover:bg-blue-400"
+              onClick={() => setOpen(true)}
+            >
+              <CirclePlus />
+              Add New Project
+            </Button>
+            {/* </DialogTrigger>
                 <Modal type="add" />
               </form>
             </Dialog> */}
@@ -159,133 +157,140 @@ const handleDelete = async (id: string) => {
         {isFetching ? (
           <div className="text-center flex justify-center items-center text-sm text-blue-500 italic mb-2">
             <RefreshCcw
-                className={isFetching ? "animate-spin" : ""}
-                size={18}
-              /> Loading ...
+              className={isFetching ? "animate-spin" : ""}
+              size={18}
+            />{" "}
+            Loading ...
           </div>
-        ):(<div className="hidden md:block overflow-hidden">
-          <table className="m-4 w-full text-left table-auto min-w-full">
-            <thead>
-              <tr>
-                {columns.map((col, index) => (
-                  <th className="p-4 border-b" key={index}>
-                    <p className="text-md font-bold">{col.title}</p>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {projectsList.map((item, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-secondary border-b"
-                  // onClick={() => router.push(`/projects/${item.id}`)}
-                >
-                  {columns.map((col, colIndex) => (
-                    <td className="p-4 py-5" key={colIndex}>
-                      {col.dataIndex ? (
-                        (() => {
-                          const value = item[col.dataIndex as keyof Project];
-                          if (
-                            typeof value === "string" ||
-                            typeof value === "number" ||
-                            typeof value === "boolean"
-                          ) {
-                            return <p className="text-sm">{String(value)}</p>;
-                          }
-                          if (Array.isArray(value)) {
-                            return (
-                              <p className="text-sm italic text-gray-400">
-                                Array
-                              </p>
-                            );
-                          }
-                          if (typeof value === "object" && value !== null) {
-                            return (
-                              <p className="text-sm">
-                                {JSON.stringify(value)}
-                              </p>
-                            );
-                          }
-                          return (
-                            <p className="text-sm italic text-gray-400">
-                              Unknown
-                            </p>
-                          );
-                        })()
-                      ) : (
-                        col.render?.(item)
-                      )}
-                    </td>
+        ) : (
+          <div className="hidden md:block overflow-hidden">
+            <table className="m-4 w-full text-left table-auto min-w-full">
+              <thead>
+                <tr>
+                  {columns.map((col, index) => (
+                    <th className="p-4 border-b" key={index}>
+                      <p className="text-md font-bold">{col.title}</p>
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {projectsList.map((item, index) => (
+                  <tr
+                    key={index}
+                    className="hover:bg-secondary border-b"
+                    // onClick={() => router.push(`/projects/${item.id}`)}
+                  >
+                    {columns.map((col, colIndex) => (
+                      <td className="p-4 py-5" key={colIndex}>
+                        {col.dataIndex
+                          ? (() => {
+                              const value =
+                                item[col.dataIndex as keyof Project];
+                              if (
+                                typeof value === "string" ||
+                                typeof value === "number" ||
+                                typeof value === "boolean"
+                              ) {
+                                return (
+                                  <p className="text-sm">{String(value)}</p>
+                                );
+                              }
+                              if (Array.isArray(value)) {
+                                return (
+                                  <p className="text-sm italic text-gray-400">
+                                    Array
+                                  </p>
+                                );
+                              }
+                              if (typeof value === "object" && value !== null) {
+                                return (
+                                  <p className="text-sm">
+                                    {JSON.stringify(value)}
+                                  </p>
+                                );
+                              }
+                              return (
+                                <p className="text-sm italic text-gray-400">
+                                  Unknown
+                                </p>
+                              );
+                            })()
+                          : col.render?.(item)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-          {/* Pagination */}
-          <div className="flex justify-between items-center px-4 py-3">
-            <div className="p-2 text-sm">
-              Showing <span className="font-medium text-primary">{limit}</span> of{" "}
-              <span className="font-medium">{meta?.totalItems ?? 0}</span> data
-            </div>
+            {/* Pagination */}
+            <div className="flex justify-between items-center px-4 py-3">
+              <div className="p-2 text-sm">
+                Showing{" "}
+                <span className="font-medium text-primary">{limit}</span> of{" "}
+                <span className="font-medium">{meta?.totalItems ?? 0}</span>{" "}
+                data
+              </div>
 
-            <div className="flex flex-wrap items-center gap-1">
-              <Button
-                disabled={meta?.currentPage === 1}
-                onClick={() => setPage((prev) => prev - 1)}
-                variant="ghost"
-                className="hover:bg-muted"
-              >
-                Prev
-              </Button>
+              <div className="flex flex-wrap items-center gap-1">
+                <Button
+                  disabled={meta?.currentPage === 1}
+                  onClick={() => setPage((prev) => prev - 1)}
+                  variant="ghost"
+                  className="hover:bg-muted"
+                >
+                  Prev
+                </Button>
 
-              {meta?.totalPages &&
-                Array.from({ length: meta.totalPages }, (_, i) => {
-                  const isActive = meta.currentPage === i + 1;
-                  return (
-                    <Button
-                      key={i}
-                      onClick={() => setPage(i + 1)}
-                      className={`
+                {meta?.totalPages &&
+                  Array.from({ length: meta.totalPages }, (_, i) => {
+                    const isActive = meta.currentPage === i + 1;
+                    return (
+                      <Button
+                        key={i}
+                        onClick={() => setPage(i + 1)}
+                        className={`
                         px-3 py-1 text-sm
-                        ${isActive
-                          ? "bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500"
-                          : "bg-muted text-muted-foreground hover:bg-muted/80"}
+                        ${
+                          isActive
+                            ? "bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        }
                       `}
-                    >
-                      {i + 1}
-                    </Button>
-                  );
-                })}
+                      >
+                        {i + 1}
+                      </Button>
+                    );
+                  })}
 
-              <Button
-                disabled={meta?.currentPage === meta?.totalPages}
-                onClick={() => setPage((prev) => prev + 1)}
-                variant="ghost"
-                className="hover:bg-muted"
-              >
-                Next
-              </Button>
+                <Button
+                  disabled={meta?.currentPage === meta?.totalPages}
+                  onClick={() => setPage((prev) => prev + 1)}
+                  variant="ghost"
+                  className="hover:bg-muted"
+                >
+                  Next
+                </Button>
+              </div>
             </div>
-          </div>
-           {open && (
-            <Dialog open={open} onOpenChange={setOpen}>
-              <form>
-                <Modal type="add" />
-              </form>
-            </Dialog>
-          )}
+            {open && (
+              <Dialog open={open} onOpenChange={setOpen}>
+                <form>
+                  <Modal type="add" />
+                </form>
+              </Dialog>
+            )}
 
-          {isEditOpen && (
-            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-              <form>
-                <Modal type="edit" id={editProjectId} />
-              </form>
-            </Dialog>
-          )}
-        </div>
-      )}
+            {isEditOpen && (
+              <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <form>
+                  <Modal type="edit" id={editProjectId} />
+                </form>
+              </Dialog>
+            )}
+          </div>
+        )}
 
         {/* Mobile Cards */}
         <div className="block md:hidden space-y-4 px-4 py-2">

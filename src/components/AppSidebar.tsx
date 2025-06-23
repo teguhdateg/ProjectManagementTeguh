@@ -13,7 +13,7 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 import {
-    FileArchive,
+  FileArchive,
   FileBadge2,
   FileCheck2,
   Home,
@@ -22,10 +22,7 @@ import {
   User2,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 const items = [
@@ -71,15 +68,19 @@ export default function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size={"lg"}>
-               {/* <img src={logoSrc} alt="logo" className="h-12" /> */}
-               <h2 className="w-full item-center justify-center text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-cyan-600 to-blue-900 bg-">My Projects</h2>
+              {/* <img src={logoSrc} alt="logo" className="h-12" /> */}
+              <h2 className="w-full item-center justify-center text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-cyan-600 to-blue-900 bg-">
+                My Projects
+              </h2>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="font-bold">Menu Utama</SidebarGroupLabel>
+          <SidebarGroupLabel className="font-bold">
+            Menu Utama
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

@@ -30,8 +30,10 @@ const ProjectsApi = {
 
   projectPost: (body: ProjectPayload) =>
     axiosInterceptor.post("api/projects", body),
+
   projectsPut: (id:string, body: ProjectPayload ) =>
     axiosInterceptor.put(`api/projects/${id}`, body),
+  
   projectsDelete: (id:string ) =>
     axiosInterceptor.delete(`api/projects/${id}`),
 };
