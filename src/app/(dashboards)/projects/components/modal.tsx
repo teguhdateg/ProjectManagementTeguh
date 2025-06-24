@@ -429,7 +429,11 @@ export default function Modal({ type, id }: ModalProps) {
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit" disabled={loading}>
+              <Button
+                className="bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500"
+                type="submit"
+                disabled={loading}
+              >
                 {loading ? "Saving..." : "Save changes"}
               </Button>
             </DialogFooter>

@@ -13,6 +13,8 @@ import {
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "react-day-picker";
+import SelectProject from "@/components/SelectProject";
 
 type Task = {
   id: string;
@@ -106,6 +108,9 @@ const defaultPage = 1;
 const limit = 5;
 
 export default function Task() {
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(
+    "54c2f3f8-cb33-4265-a1d6-486b7e4a2d92"
+  );
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: defaultPage - 1,
     pageSize: limit,
@@ -113,7 +118,7 @@ export default function Task() {
 
   const { data, isFetching, refetch } = useTaskGet({
     params: {
-      projectId: "54c2f3f8-cb33-4265-a1d6-486b7e4a2d92",
+      projectId: selectedProjectId,
       status: "",
       priority: "",
       page: pagination.pageIndex + 1,
@@ -146,27 +151,36 @@ export default function Task() {
         ) : (
           <div className="overflow-x-auto">
             <div className="flex flex-row justify-between mb-4">
-            <div className="flex flex-row mb-4 items-center space-x-2">
-              <div>
-                <Label className="font-bold mb-1">Project</Label>
-                <Input placeholder="Search" />
+              <div className="flex flex-row mb-4 items-center space-x-2">
+                <div>
+                  <Label className="font-bold mb-1">Project</Label>
+                  <SelectProject
+                    selectedProjectId={selectedProjectId}
+                    onSelectProject={(projectId) => {
+                      setSelectedProjectId(projectId);
+                      setPagination((prev) => ({
+                        ...prev,
+                        pageIndex: 0, // reset ke halaman 1 jika perlu
+                      }));
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label className="font-bold mb-1">Status</Label>
+                  <Input placeholder="Search" />
+                </div>
+                <div>
+                  <Label className="font-bold mb-1">Priority</Label>
+                  <Input placeholder="Search" />
+                </div>
               </div>
-              <div>
-                <Label className="font-bold mb-1">Status</Label>
-                <Input placeholder="Search" />
-              </div>
-              <div>
-                <Label className="font-bold mb-1">Priority</Label>
-                <Input placeholder="Search" />
-              </div>
-            </div>
-            <div className="flex flex-row justify-end items-end mb-4">
-              <button
-                className="px-4 py-2 bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 text-white rounded-md"
-                onClick={() => alert("Add New Task")}
-              >
-                Add New Task
-              </button>
+              <div className="flex flex-row justify-end items-end mb-4">
+                <button
+                  className="px-4 py-2 bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 text-white rounded-md"
+                  onClick={() => alert("Add New Task")}
+                >
+                  Add New Task
+                </button>
               </div>
             </div>
             <table className="w-full text-left border-collapse">

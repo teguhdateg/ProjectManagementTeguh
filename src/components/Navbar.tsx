@@ -23,7 +23,7 @@ export default function Navbar() {
 
 //   const { name } = useUserStore((state) => state);
   return (
-    <nav className="fixed top-0 p-4 flex flex-auto items-center justify-between bg-sidebar shadow-md w-screen md:pl-64">
+    <nav className="fixed top-0 p-3 flex flex-auto items-center justify-between bg-sidebar shadow-md w-screen md:pl-64">
         <SidebarTrigger />
         <div className="flex items-center gap-4">
         <DropdownMenu>
