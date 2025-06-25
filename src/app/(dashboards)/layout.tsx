@@ -14,9 +14,9 @@ export default async function Layout({
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
-      <Navbar />
-      <main className="flex flex-col w-screen min-h-screen">
-        <div className="p-9 pt-16">{children}</div>
+      <Navbar /> {/* Navbar di atas main */}
+      <main className="flex flex-col w-screen min-h-screen bg-white">
+        <div className="flex-1 p-9 pt-16 min-h-screen bg-white">{children}</div>
         <FooterBar />
       </main>
     </SidebarProvider>

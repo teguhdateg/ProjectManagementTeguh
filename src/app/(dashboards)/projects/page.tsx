@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import {
 } from "@/services/hooks/projects";
 import { CirclePlus, Pencil, Trash, RefreshCcw } from "lucide-react";
 import { Dialog } from "@/components/ui/dialog";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Modal from "./components/modal";
 import { useDebounce } from "@/lib/useDebounce";
 
@@ -19,7 +19,7 @@ const defaultPage = 1;
 const limit = 5;
 
 export default function ResponsiveList() {
-  // const router = useRouter();
+  const router = useRouter();
   const [page, setPage] = React.useState(defaultPage);
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce(search, 500);
@@ -87,29 +87,23 @@ export default function ResponsiveList() {
       title: "Actions",
       render: (item: Project) => (
         <div className="flex gap-2">
-          {/* <Dialog open={isEditOpen} onOpenChange={(open) => {
-            setIsEditOpen(open);
-            if (open) {
-              setEditProjectId(item.id); // langsung set ID saat dialog dibuka
-            }
-          }}>
-            <form>
-              <DialogTrigger asChild> */}
           <Button
             className="text-sm text-blue-600"
             variant="link"
-            onClick={() => handleEdit(item.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(item.id);
+            }}
           >
             <Pencil /> Edit
           </Button>
-          {/* </DialogTrigger>
-              <Modal type="edit" id={editProjectId} />
-            </form>
-          </Dialog> */}
           <Button
             className="text-sm text-red-500"
             variant="link"
-            onClick={() => handleDelete(item.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(item.id);
+            }}
           >
             <Trash /> Delete
           </Button>
@@ -117,6 +111,55 @@ export default function ResponsiveList() {
       ),
     },
   ];
+
+  const [mobileProjects, setMobileProjects] = React.useState<Project[]>([]);
+  const [mobilePage, setMobilePage] = React.useState(1);
+  const mobileLoader = useRef<HTMLDivElement | null>(null);
+
+  // Fetch for mobile infinite scroll
+  const { data: mobileData, isFetching: isMobileFetching } = useProjectsGet({
+    params: {
+      name: debouncedSearch,
+      page: mobilePage,
+      perPage: limit,
+    },
+  });
+
+  useEffect(() => {
+    if (mobileData && Array.isArray((mobileData as ProjectResponse)?.data)) {
+      setMobileProjects((prev) =>
+        mobilePage === 1
+          ? (mobileData as ProjectResponse).data
+          : [...prev, ...(mobileData as ProjectResponse).data]
+      );
+    }
+  }, [mobileData, mobilePage]);
+
+  // Reset mobileProjects saat search berubah
+  useEffect(() => {
+    setMobilePage(1);
+  }, [debouncedSearch]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (!mobileLoader.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          !isMobileFetching &&
+          (mobileData as ProjectResponse)?.data?.length === limit
+        ) {
+          setMobilePage((prev) => prev + 1);
+        }
+      },
+      { threshold: 1 }
+    );
+    observer.observe(mobileLoader.current);
+    return () => {
+      if (mobileLoader.current) observer.unobserve(mobileLoader.current);
+    };
+  }, [isMobileFetching, mobileData]);
 
   return (
     <div className="flex flex-col">
@@ -137,9 +180,6 @@ export default function ResponsiveList() {
               />
               Refresh
             </Button>
-            {/* <Dialog open={open} onOpenChange={setOpen}>
-              <form>
-                <DialogTrigger asChild> */}
             <Button
               className="w-40 bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 hover:bg-blue-400"
               onClick={() => setOpen(true)}
@@ -147,10 +187,6 @@ export default function ResponsiveList() {
               <CirclePlus />
               Add New Project
             </Button>
-            {/* </DialogTrigger>
-                <Modal type="add" />
-              </form>
-            </Dialog> */}
           </div>
         </div>
 
@@ -179,7 +215,7 @@ export default function ResponsiveList() {
                   <tr
                     key={index}
                     className="hover:bg-secondary border-b"
-                    // onClick={() => router.push(`/projects/${item.id}`)}
+                    onClick={() => router.push(`/projects/${item.id}`)}
                   >
                     {columns.map((col, colIndex) => (
                       <td className="p-4 py-5" key={colIndex}>
@@ -294,10 +330,10 @@ export default function ResponsiveList() {
 
         {/* Mobile Cards */}
         <div className="block md:hidden space-y-4 px-4 py-2">
-          {projectsList.map((item, index) => (
+          {mobileProjects.map((item, index) => (
             <Card
-              key={index}
-              className="p-4 shadow-sm rounded-xl bg-zinc-900 text-white"
+              key={item.id}
+              className="p-4 shadow-sm rounded-xl bg-primary/2"
             >
               <div className="space-y-2">
                 <div>
@@ -325,6 +361,13 @@ export default function ResponsiveList() {
               </div>
             </Card>
           ))}
+          {/* Loader div for intersection observer */}
+          <div ref={mobileLoader} />
+          {isMobileFetching && (
+            <div className="text-center text-xs text-gray-400 py-2">
+              Loading...
+            </div>
+          )}
         </div>
       </Card>
     </div>

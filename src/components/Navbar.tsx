@@ -21,11 +21,11 @@ import Cookies from "js-cookie";
 export default function Navbar() {
   const { setTheme } = useTheme();
 
-//   const { name } = useUserStore((state) => state);
+  //   const { name } = useUserStore((state) => state);
   return (
-    <nav className="fixed top-0 p-3 flex flex-auto items-center justify-between bg-sidebar shadow-md w-screen md:pl-64">
-        <SidebarTrigger />
-        <div className="flex items-center gap-4">
+    <nav className="fixed z-1100 top-0 left-0 md:left-64 right-0 p-3 flex items-center justify-between bg-sidebar shadow-md h-16">
+      <SidebarTrigger />
+      <div className="flex items-center gap-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
@@ -74,7 +74,7 @@ export default function Navbar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        </div>
+      </div>
     </nav>
   );
 }

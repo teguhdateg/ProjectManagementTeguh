@@ -1,4 +1,4 @@
-import { useGetApiWithParams } from "./hooks";
+import { useGetApiWithParams, useMutateApi } from "./hooks";
 import TaskApi from "../api/taskApi";
 
 // Parameter untuk GET
@@ -43,6 +43,16 @@ interface TaskResponse {
   }>;
 }
 
+interface TaskPayload {
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  priority: string;
+  assigneeId: string;
+}
+
 // Options untuk GET
 type UseTaskOptions = {
   params: TaskParams;
@@ -55,6 +65,23 @@ export const useTaskGet = ({ params, onSuccess, onError }: UseTaskOptions) =>
     fetch: TaskApi.TaskGet,
     key: ["TaskApi.TaskGet"],
     payload: params,
+    onSuccess,
+    onError,
+  });
+
+export const useTaskPost = ({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (data: TaskResponse, payload: TaskPayload & { projectId: string }) => void;
+  onError?: (error: unknown, payload: TaskPayload & { projectId: string }) => void;
+} = {}) =>
+  useMutateApi<TaskPayload & { projectId: string }, TaskResponse>({
+    fetch: (payload) => {
+      const { projectId, ...body } = payload;
+      return TaskApi.TaskPost(projectId, body);
+    },
+    key: ["TaskApi.TaskPost"],
     onSuccess,
     onError,
   });

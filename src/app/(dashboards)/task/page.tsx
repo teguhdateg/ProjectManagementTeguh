@@ -15,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "react-day-picker";
 import SelectProject from "@/components/SelectProject";
+import { Dialog } from "@/components/ui/dialog";
+import TaskModal from "./components/modal";
 
 type Task = {
   id: string;
@@ -108,6 +110,7 @@ const defaultPage = 1;
 const limit = 5;
 
 export default function Task() {
+  const [open, setOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string>(
     "54c2f3f8-cb33-4265-a1d6-486b7e4a2d92"
   );
@@ -177,7 +180,7 @@ export default function Task() {
               <div className="flex flex-row justify-end items-end mb-4">
                 <button
                   className="px-4 py-2 bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 text-white rounded-md"
-                  onClick={() => alert("Add New Task")}
+                  onClick={() => setOpen(true)}
                 >
                   Add New Task
                 </button>
@@ -250,6 +253,14 @@ export default function Task() {
               </div>
             </div>
           </div>
+        )}
+
+        {open && (
+          <Dialog open={open} onOpenChange={setOpen}>
+            <form>
+              <TaskModal type="add" projectId={selectedProjectId}/>
+            </form>
+          </Dialog>
         )}
       </Card>
     </>
